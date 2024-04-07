@@ -1,4 +1,4 @@
-# Install script for directory: /home/goran/Desktop/project_base-main/libs/imgui
+# Install script for directory: /home/goran/Desktop/rg_projekat/libs/imgui
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
