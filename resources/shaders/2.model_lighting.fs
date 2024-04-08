@@ -126,7 +126,6 @@ vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
         // attenuation
         float distance = length(light.position - fragPos);
         float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance));
-//        float attenuation = 1.0;
 
         ambient *= attenuation;
         diffuse *= attenuation;
@@ -136,15 +135,14 @@ vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
         return (ambient + diffuse + specular);
 }
 
-
 void main()
 {
     vec3 normal = normalize(Normal);
     vec3 viewDir = normalize(viewPosition - FragPos);
-//    vec3 result = CalcDirLight(dirLight, normal, viewDir);
+    vec3 result = CalcDirLight(dirLight, normal, viewDir);
 //    vec3 result = CalcPointLight(pointLight1, normal, FragPos, viewDir);
 //    result += CalcPointLight(pointLight3, normal, FragPos, viewDir);
-       vec3 result = CalcSpotLight(spotlight1, normal, FragPos, viewDir);
+//       vec3 result = CalcSpotLight(spotlight1, normal, FragPos, viewDir);
     result += CalcSpotLight(spotlight2, normal, FragPos, viewDir);
     result += CalcSpotLight(spotlight3, normal, FragPos, viewDir);
     result += CalcSpotLight(spotlight4, normal, FragPos, viewDir);
@@ -153,7 +151,6 @@ void main()
     result += CalcSpotLight(spotlight7, normal, FragPos, viewDir);
     result += CalcSpotLight(spotlight8, normal, FragPos, viewDir);
     result += CalcSpotLight(spotlight9, normal, FragPos, viewDir);
-
 
     FragColor = vec4(result, 1.0);
 }
