@@ -9,7 +9,6 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-
 #include <learnopengl/filesystem.h>
 #include <learnopengl/shader.h>
 #include <learnopengl/camera.h>
@@ -58,7 +57,6 @@ struct PointLight {
     float constant;
     float linear;
     float quadratic;
-
 };
 
 struct DirLight {
@@ -74,9 +72,10 @@ struct ProgramState {
     bool ImGuiEnabled = false;
     Camera camera;
     bool CameraMouseMovementUpdateEnabled = true;
+
     glm::vec3 lampPosition = glm::vec3(562, 10, 3570);
     glm::vec3 ponyPosition = glm::vec3(-10, -0.3, -83);
-    glm::vec3 slupanPosition = glm::vec3(-260, -10, 150);
+    glm::vec3 crashedPosition = glm::vec3(-260, -10, 150);
     glm::vec3 dodgePosition = glm::vec3(450, 0, 3685);
     glm::vec3 garagePosition = glm::vec3(-140, 0, -30);
     glm::vec3 dinerPosition = glm::vec3(-80, 0, -750);
@@ -85,7 +84,7 @@ struct ProgramState {
     glm::vec3 roadPosition2 = glm::vec3(370, 0, -1268);
     glm::vec3 roadPosition4 = glm::vec3(370, 0, -1877);
     glm::vec3 roadPosition3 = glm::vec3(370, 0, 559);
-    glm::vec3 road_without_side_Position = glm::vec3(80, -3, 350);
+    glm::vec3 road_without_side_Position = glm::vec3(62, -3, 362);
     glm::vec3 road1_without_side_Position = glm::vec3(100, -3, -1620);
     glm::vec3 roadPosition5 = glm::vec3(370, 0, -2486);
     glm::vec3 roadPosition6 = glm::vec3(370, 0, 1168);
@@ -97,13 +96,12 @@ struct ProgramState {
     float ponyScale = 0.2;
     float lampScale = 55;
     float dodgeScale = 35;
-    float slupanScale = 7;
+    float crashedScale = 7;
     float garageScale = 1.05;
     float roadScale = 40;
-    float road_without_side = 57;
-    float road1_without_side = 65;
+    float road_without_side = 58.5;
 
-    PointLight pointLight[5];
+    PointLight pointLight;
     DirLight dirLight;
 
     ProgramState()
@@ -205,10 +203,6 @@ int main() {
     // -----------------------------
     glEnable(GL_DEPTH_TEST);
 
-//    glEnable(GL_CULL_FACE);
-//    glCullFace(GL_BACK);
-
-
     // build and compile shaders
     // -------------------------
     Shader ourShader("resources/shaders/2.model_lighting.vs", "resources/shaders/2.model_lighting.fs");
@@ -235,8 +229,8 @@ int main() {
     Model lamp("resources/objects/street_lamp/street_lamp_02.obj");
     lamp.SetShaderTextureNamePrefix("material.");
 
-    Model slupan("resources/objects/crashed_car/car03.obj");
-    slupan.SetShaderTextureNamePrefix("material.");
+    Model crashed("resources/objects/crashed_car/car03.obj");
+    crashed.SetShaderTextureNamePrefix("material.");
 
     Model road("resources/objects/road/road.obj");
     road.SetShaderTextureNamePrefix("material.");
@@ -274,7 +268,7 @@ int main() {
     Model road1_without_side("resources/objects/road1/road.obj");
     road1_without_side.SetShaderTextureNamePrefix("material.");
 
-    PointLight& pointLight1 = programState->pointLight[0];
+    PointLight& pointLight1 = programState->pointLight;
     pointLight1.position = glm::vec3(-10, 445, 50);
     pointLight1.ambient = glm::vec3(7.0, 7.0, 7.0);
     pointLight1.diffuse = glm::vec3(0.9, 0.9, 0.9);
@@ -283,26 +277,6 @@ int main() {
     pointLight1.constant = 17.0f;
     pointLight1.linear = 0.09f;
     pointLight1.quadratic = 0.001f;
-
-    PointLight& pointLight2 = programState->pointLight[1];
-    pointLight2.position = glm::vec3(-9, 35, -109);
-    pointLight2.ambient = glm::vec3(10.0, 10.0, 10.0);
-    pointLight2.diffuse = glm::vec3(0.9, 0.9, 0.9);
-    pointLight2.specular = glm::vec3(1.0, 1.0, 1.0);
-
-    pointLight2.constant = 17.0f;
-    pointLight2.linear = 0.09f;
-    pointLight2.quadratic = 0.032f;
-
-    PointLight& pointLight3 = programState->pointLight[2];
-    pointLight3.position = glm::vec3(12, -43.9, -27);
-    pointLight3.ambient = glm::vec3(10.0, 10.0, 10.0);
-    pointLight3.diffuse = glm::vec3(0.9, 0.9, 0.9);
-    pointLight3.specular = glm::vec3(1.0, 1.0, 1.0);
-
-    pointLight3.constant = 17.0f;
-    pointLight3.linear = 0.09f;
-    pointLight3.quadratic = 0.032f;
 
     DirLight& dirLight = programState->dirLight;
 
@@ -357,7 +331,7 @@ int main() {
     };
     glad_glFrontFace(GL_CW);
 
-    //     cube VAO
+    // cube VAO
     unsigned int cubeVAO, cubeVBO;
     glGenVertexArrays(1, &cubeVAO);
     glGenBuffers(1, &cubeVBO);
@@ -369,7 +343,7 @@ int main() {
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
 
-    unsigned int cardboardTexture = loadTexture(FileSystem::getPath("resources/textures/karton.jpg").c_str(), true);
+    unsigned int cardboardTexture = loadTexture(FileSystem::getPath("resources/textures/cardboard.jpg").c_str(), true);
 
     // Grass vertices
     float transparentVertices[] = {
@@ -422,7 +396,7 @@ int main() {
             50.0f, 0.0f, -50.0f,  2.0f, 2.0f, 0.0f, 1.0f, 0.0f,
             -50.0f, 0.0f, -50.0f,  0.0f, 2.0f, 0.0f, 1.0f, 0.0f
     };
-
+    // plane VAO
     unsigned int planeVAO, planeVBO;
     glGenVertexArrays(1, &planeVAO);
     glGenBuffers(1, &planeVBO);
@@ -443,7 +417,7 @@ int main() {
 
     glBindVertexArray(0);
 
-    unsigned int groundTexture = loadTexture(FileSystem::getPath("resources/textures/pesak.jpg").c_str(), true);
+    unsigned int groundTexture = loadTexture(FileSystem::getPath("resources/textures/sand.jpg").c_str(), true);
 
     planeShader.use();
     planeShader.setInt("texture1", 0);
@@ -458,7 +432,7 @@ int main() {
     parallaxShader.setInt("normalMap", 1);
     parallaxShader.setInt("depthMap", 2);
 
-    //skybox
+    //skybox vertices
     float skyboxVertices[] = {
             // positions
             -1.0f,  1.0f, -1.0f,
@@ -503,7 +477,7 @@ int main() {
             -1.0f, -1.0f,  1.0f,
             1.0f, -1.0f,  1.0f
     };
-
+    // skybox VAO
     unsigned int skyboxVAO, skyboxVBO;
     glGenVertexArrays(1, &skyboxVAO);
     glGenBuffers(1, &skyboxVBO);
@@ -515,22 +489,22 @@ int main() {
 
     vector<std::string> facesNight
             {
-                    FileSystem::getPath("/resources/textures/skybox/right.jpg"),
-                    FileSystem::getPath("/resources/textures/skybox/left.jpg"),
-                    FileSystem::getPath("/resources/textures/skybox/top.jpg"),
-                    FileSystem::getPath("/resources/textures/skybox/bottom.jpg"),
-                    FileSystem::getPath("/resources/textures/skybox/front.jpg"),
-                    FileSystem::getPath("/resources/textures/skybox/back.jpg")
+                    FileSystem::getPath("/resources/textures/skyboxNight/right.jpg"),
+                    FileSystem::getPath("/resources/textures/skyboxNight/left.jpg"),
+                    FileSystem::getPath("/resources/textures/skyboxNight/top.jpg"),
+                    FileSystem::getPath("/resources/textures/skyboxNight/bottom.jpg"),
+                    FileSystem::getPath("/resources/textures/skyboxNight/front.jpg"),
+                    FileSystem::getPath("/resources/textures/skyboxNight/back.jpg")
             };
 
     vector<std::string> facesDay
             {
-                    FileSystem::getPath("/resources/textures/skybox1/right.jpg"),
-                    FileSystem::getPath("/resources/textures/skybox1/left.jpg"),
-                    FileSystem::getPath("/resources/textures/skybox1/top.jpg"),
-                    FileSystem::getPath("/resources/textures/skybox1/bottom.jpg"),
-                    FileSystem::getPath("/resources/textures/skybox1/front.jpg"),
-                    FileSystem::getPath("/resources/textures/skybox1/back.jpg")
+                    FileSystem::getPath("/resources/textures/skyboxDay/right.jpg"),
+                    FileSystem::getPath("/resources/textures/skyboxDay/left.jpg"),
+                    FileSystem::getPath("/resources/textures/skyboxDay/top.jpg"),
+                    FileSystem::getPath("/resources/textures/skyboxDay/bottom.jpg"),
+                    FileSystem::getPath("/resources/textures/skyboxDay/front.jpg"),
+                    FileSystem::getPath("/resources/textures/skyboxDay/back.jpg")
             };
 
     unsigned int cubemapTextureDay = loadCubemap(facesDay);
@@ -547,18 +521,16 @@ int main() {
     float desni_far_2 = 3592.42;
     float levi_far_2 = 3591.98;
 
-    // lamp locations
+    // lamp positions
     vector<glm::vec3> pozicija_lampe;
 
-    //lamp positions
     for(float i = 0; i < 10 ; i++){
         pozicija_lampe.push_back(glm::vec3(562, 10, 3570 - 900*i));
     }
 
-    // light locations
+    // light positions
     vector<glm::vec3> pozicija_svetla;
 
-    //lamp positions
     for(float i = 0; i < 10 ; i++){
         pozicija_svetla.push_back(glm::vec3(556, 153, 3570 - 900*i));
     }
@@ -675,7 +647,7 @@ int main() {
         glClearColor(programState->clearColor.r, programState->clearColor.g, programState->clearColor.b, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-
+        //plane shader
         planeShader.use();
         glm::mat4 model = glm::mat4(1.0f);
         glm::mat4 view = programState->camera.GetViewMatrix();
@@ -703,7 +675,8 @@ int main() {
         glDrawArrays(GL_TRIANGLES, 0, 6);
         glBindVertexArray(0);
 
-        //trava
+        // blending shader
+        // trava
         blendingShader.use();
         glm::mat4 trava_model = glm::mat4(1.0f);
         blendingShader.setMat4("projection", projection);
@@ -762,6 +735,7 @@ int main() {
         //ourShader
         ourShader.use();
         ourShader.setBool("noc", noc);
+
         //spotlight1, svetlo kamere
         ourShader.setVec3("spotlight1.position", programState->camera.Position);
         ourShader.setVec3("spotlight1.direction", programState->camera.Front);
@@ -774,7 +748,7 @@ int main() {
         ourShader.setFloat("spotlight1.linear", 0.0f);
         ourShader.setFloat("spotlight1.quadratic", 0.00001f);
 
-        //spotlight2, desni far
+        //spotlight2, desni far, pony
         ourShader.setVec3("spotlight2.position", glm::vec3(34.29f, 36.21f, -53.63f));
         ourShader.setVec3("spotlight2.direction", glm::vec3(0.985f, -0.158f, -0.058f));
         ourShader.setFloat("spotlight2.cutOff", glm::cos(glm::radians(12.5f)));
@@ -786,7 +760,7 @@ int main() {
         ourShader.setFloat("spotlight2.linear", 0.0f);
         ourShader.setFloat("spotlight2.quadratic", 0.00001f);
 
-        //spotlight3, desni far, svetlo ka faru
+        //spotlight3, desni far, svetlo ka faru, pony
         ourShader.setVec3("spotlight3.position", glm::vec3(64.38f, 33.26f, -54.59f));
         ourShader.setVec3("spotlight3.direction", glm::vec3(-0.999f, 0.027f, 0.032f));
         ourShader.setFloat("spotlight3.cutOff", glm::cos(glm::radians(12.5f)));
@@ -798,7 +772,7 @@ int main() {
         ourShader.setFloat("spotlight3.linear", 0.0f);
         ourShader.setFloat("spotlight3.quadratic", 0.004f);
 
-        //spotlight4, levi far
+        //spotlight4, levi far, pony
         ourShader.setVec3("spotlight4.position", glm::vec3(43.17f, 34.06f, -112.10f));
         ourShader.setVec3("spotlight4.direction", glm::vec3(0.989f, -0.142f, 0.048f));
         ourShader.setFloat("spotlight4.cutOff", glm::cos(glm::radians(12.5f)));
@@ -810,7 +784,7 @@ int main() {
         ourShader.setFloat("spotlight4.linear", 0.0f);
         ourShader.setFloat("spotlight4.quadratic", 0.00001f);
 
-        //spotlight5, levi far, svetlo ka faru
+        //spotlight5, levi far, svetlo ka faru, pony
         ourShader.setVec3("spotlight5.position", glm::vec3(66.82f, 37.20f, -113.89f));
         ourShader.setVec3("spotlight5.direction", glm::vec3(-0.964f, -0.224f, 0.135f));
         ourShader.setFloat("spotlight5.cutOff", glm::cos(glm::radians(12.5f)));
@@ -874,6 +848,7 @@ int main() {
         ourShader.setFloat("spotlight9.quadratic", 0.004f);
         levi_far_2 = levi_far_2 - 5;
 
+        // pointlights, ulicna rasveta
         for(unsigned int i = 0; i < 10; i++){
             ourShader.setVec3(pointlightsPos[i], pozicija_svetla[i]);
             ourShader.setVec3(pointlightsAmb[i], pointLight1.ambient);
@@ -884,7 +859,7 @@ int main() {
             ourShader.setFloat(pointlightsQuad[i], pointLight1.quadratic);
         }
 
-        // diner light1
+        // diner sign light1
         ourShader.setVec3("pointLight11.position", glm::vec3(-290, 223, -680));
         ourShader.setVec3("pointLight11.ambient", pointLight1.ambient);
         ourShader.setVec3("pointLight11.diffuse", pointLight1.diffuse);
@@ -893,40 +868,40 @@ int main() {
         ourShader.setFloat("pointLight11.linear", pointLight1.linear);
         ourShader.setFloat("pointLight11.quadratic", 0.007);
 
-        // diner light2
+        // diner sign light2
         ourShader.setVec3("pointLight12.position", glm::vec3(-290, 223, -770));
-        ourShader.setVec3("pointLight12.ambient", pointLight2.ambient);
-        ourShader.setVec3("pointLight12.diffuse", pointLight2.diffuse);
-        ourShader.setVec3("pointLight12.specular", pointLight2.specular);
-        ourShader.setFloat("pointLight12.constant", pointLight2.constant);
-        ourShader.setFloat("pointLight12.linear", pointLight2.linear);
+        ourShader.setVec3("pointLight12.ambient", pointLight1.ambient);
+        ourShader.setVec3("pointLight12.diffuse", pointLight1.diffuse);
+        ourShader.setVec3("pointLight12.specular", pointLight1.specular);
+        ourShader.setFloat("pointLight12.constant", pointLight1.constant);
+        ourShader.setFloat("pointLight12.linear", pointLight1.linear);
         ourShader.setFloat("pointLight12.quadratic", 0.007);
 
-        // diner light dok ulaza
+        // diner sign light kos ulaza
         ourShader.setVec3("pointLight13.position", glm::vec3(60, 100, -1193));
-        ourShader.setVec3("pointLight13.ambient", pointLight3.ambient);
-        ourShader.setVec3("pointLight13.diffuse", pointLight3.diffuse);
-        ourShader.setVec3("pointLight13.specular", pointLight3.specular);
-        ourShader.setFloat("pointLight13.constant", pointLight3.constant);
-        ourShader.setFloat("pointLight13.linear", pointLight3.linear);
+        ourShader.setVec3("pointLight13.ambient", pointLight1.ambient);
+        ourShader.setVec3("pointLight13.diffuse", pointLight1.diffuse);
+        ourShader.setVec3("pointLight13.specular", pointLight1.specular);
+        ourShader.setFloat("pointLight13.constant", pointLight1.constant);
+        ourShader.setFloat("pointLight13.linear", pointLight1.linear);
         ourShader.setFloat("pointLight13.quadratic", 0.001);
 
         // svetlo iznutra1
         ourShader.setVec3("pointLight14.position", glm::vec3(-347, 124, -702));
-        ourShader.setVec3("pointLight14.ambient", pointLight3.ambient);
-        ourShader.setVec3("pointLight14.diffuse", pointLight3.diffuse);
-        ourShader.setVec3("pointLight14.specular", pointLight3.specular);
-        ourShader.setFloat("pointLight14.constant", pointLight3.constant);
-        ourShader.setFloat("pointLight14.linear", pointLight3.linear);
+        ourShader.setVec3("pointLight14.ambient", pointLight1.ambient);
+        ourShader.setVec3("pointLight14.diffuse", pointLight1.diffuse);
+        ourShader.setVec3("pointLight14.specular", pointLight1.specular);
+        ourShader.setFloat("pointLight14.constant", pointLight1.constant);
+        ourShader.setFloat("pointLight14.linear", pointLight1.linear);
         ourShader.setFloat("pointLight14.quadratic", 0.01);
 
         // svetlo iznutra2
         ourShader.setVec3("pointLight15.position", glm::vec3(-350, 113, -921));
-        ourShader.setVec3("pointLight15.ambient", pointLight3.ambient);
-        ourShader.setVec3("pointLight15.diffuse", pointLight3.diffuse);
-        ourShader.setVec3("pointLight15.specular", pointLight3.specular);
-        ourShader.setFloat("pointLight15.constant", pointLight3.constant);
-        ourShader.setFloat("pointLight15.linear", pointLight3.linear);
+        ourShader.setVec3("pointLight15.ambient", pointLight1.ambient);
+        ourShader.setVec3("pointLight15.diffuse", pointLight1.diffuse);
+        ourShader.setVec3("pointLight15.specular", pointLight1.specular);
+        ourShader.setFloat("pointLight15.constant", pointLight1.constant);
+        ourShader.setFloat("pointLight15.linear", pointLight1.linear);
         ourShader.setFloat("pointLight15.quadratic", 0.01);
 
         // directional light
@@ -934,15 +909,13 @@ int main() {
         ourShader.setVec3("dirLight.ambient", dirLight.ambient);
         ourShader.setVec3("dirLight.diffuse", dirLight.diffuse);
         ourShader.setVec3("dirLight.specular", dirLight.specular);
-//        ourShader.setFloat("shininess", 1.0f);
 
 
         ourShader.setVec3("viewPosition", programState->camera.Position);
         ourShader.setFloat("material.shininess", 32.0f);
 
         // view/projection transformations
-        projection = glm::perspective(glm::radians(programState->camera.Zoom),
-                                                (float) SCR_WIDTH / (float) SCR_HEIGHT, 0.1f, 10000.0f);
+        projection = glm::perspective(glm::radians(programState->camera.Zoom),(float) SCR_WIDTH / (float) SCR_HEIGHT, 0.1f, 10000.0f);
         view = programState->camera.GetViewMatrix();
         ourShader.setMat4("projection", projection);
         ourShader.setMat4("view", view);
@@ -981,6 +954,7 @@ int main() {
             levi_far_2 = 3591.98;
 
         }
+
         //dodge
         model = glm::mat4(1.0f);
         model = glm::translate(model, glm::vec3(450, 0, brojac));
@@ -990,25 +964,24 @@ int main() {
         dodge.Draw(ourShader);
         brojac = brojac - 5;
 
-        //street lamp
+        //street lamps
         for(unsigned int i = 0; i < 10; i++) {
             model = glm::mat4(1.0f);
             model = glm::translate(model, pozicija_lampe[i]);
             model = glm::scale(model, glm::vec3(programState->lampScale));
-//        model = glm::rotate(model, glm::radians(180.0f), glm::vec3 (0.0, 1.0f, 0.0f));
             ourShader.setMat4("model", model);
             lamp.Draw(ourShader);
         }
 
-        //slupan
+        //crashed
         model = glm::mat4(1.0f);
-        model = glm::translate(model, programState->slupanPosition);
-        model = glm::scale(model, glm::vec3(programState->slupanScale));
+        model = glm::translate(model, programState->crashedPosition);
+        model = glm::scale(model, glm::vec3(programState->crashedScale));
         model = glm::rotate(model, glm::radians(180.0f), glm::vec3 (0.0, 1.0f, 1.0f));
         model = glm::rotate(model, glm::radians(20.0f), glm::vec3 (0.0f, 0.0f, 1.0f));
         model = glm::rotate(model, glm::radians(5.0f), glm::vec3 (0.0f, 1.0f, 0.0f));
         ourShader.setMat4("model", model);
-        slupan.Draw(ourShader);
+        crashed.Draw(ourShader);
 
         //road
         model = glm::mat4(1.0f);
@@ -1201,8 +1174,6 @@ void DrawImGui(ProgramState *programState) {
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
-
-
     {
         ImGui::Begin("Camera info");
         const Camera& c = programState->camera;
@@ -1227,13 +1198,12 @@ void key_callback(GLFWwindow *window, int key, int scancode, int action, int mod
             glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
         }
     }
-
+    // prelazak sa dana na noc i obrnuto
     if (key == GLFW_KEY_N && action == GLFW_PRESS) {
         noc = !noc;
     }
 
 }
-
 
 unsigned int loadCubemap(vector<std::string> faces)
 {
