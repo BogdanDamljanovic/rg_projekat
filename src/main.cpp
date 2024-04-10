@@ -513,7 +513,7 @@ int main() {
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
-    vector<std::string> faces
+    vector<std::string> facesNight
             {
                     FileSystem::getPath("/resources/textures/skybox/right.jpg"),
                     FileSystem::getPath("/resources/textures/skybox/left.jpg"),
@@ -523,8 +523,18 @@ int main() {
                     FileSystem::getPath("/resources/textures/skybox/back.jpg")
             };
 
+    vector<std::string> facesDay
+            {
+                    FileSystem::getPath("/resources/textures/skybox1/right.jpg"),
+                    FileSystem::getPath("/resources/textures/skybox1/left.jpg"),
+                    FileSystem::getPath("/resources/textures/skybox1/top.jpg"),
+                    FileSystem::getPath("/resources/textures/skybox1/bottom.jpg"),
+                    FileSystem::getPath("/resources/textures/skybox1/front.jpg"),
+                    FileSystem::getPath("/resources/textures/skybox1/back.jpg")
+            };
 
-    unsigned int cubemapTexture = loadCubemap(faces);
+    unsigned int cubemapTextureDay = loadCubemap(facesDay);
+    unsigned int cubemapTextureNight = loadCubemap(facesNight);
 
     skyboxShader.use();
     skyboxShader.setInt("skybox",0);
@@ -645,8 +655,6 @@ int main() {
 
         });
 
-
-
     // render loop
     // -----------
     while (!glfwWindowShouldClose(window)) {
@@ -695,7 +703,6 @@ int main() {
         glDrawArrays(GL_TRIANGLES, 0, 6);
         glBindVertexArray(0);
 
-
         //trava
         blendingShader.use();
         glm::mat4 trava_model = glm::mat4(1.0f);
@@ -713,7 +720,6 @@ int main() {
             blendingShader.setMat4("model", trava_model);
             glDrawArrays(GL_TRIANGLES, 0, 6);
         }
-
 
         // kartonska kutija
         glEnable(GL_CULL_FACE);
@@ -941,7 +947,6 @@ int main() {
         ourShader.setMat4("projection", projection);
         ourShader.setMat4("view", view);
 
-
         // render the loaded model
 
         //garage
@@ -1111,7 +1116,11 @@ int main() {
         //skybox cube
         glBindVertexArray(skyboxVAO);
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
+        if(noc){
+            glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTextureNight);
+        } else{
+            glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTextureDay);
+        }
         glDrawArrays(GL_TRIANGLES, 0, 36);
         glBindVertexArray(0);
         glDepthFunc(GL_LESS);
