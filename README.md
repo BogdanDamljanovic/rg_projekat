@@ -1,14 +1,15 @@
-# project_base
-Prazan projekat sa pratećim bibliotekama koje koristimo na času. 
-
 # Uputstvo
-1. `git clone https://github.com/matf-racunarska-grafika/project_base.git`
-2. CLion -> Open -> path/to/my/project_base
-3. Main se nalazi u src/main.cpp
-4. Cpp fajlovi idu u src folder
-5. Zaglavlja (h i hpp) fajlovi idu u include
-6. Šejderi idu u folder shaders. `Vertex shader` ima ekstenziju `.vs`, `fragment shader` ima ekstenziju `.fs`
-7. ALT+SHIFT+F10 -> project_base -> run
+1. Pritiskom na dugme N se prelazi sa dana na noć i obrnuto
 
 # Napomena
 link do google drive-a gde se nalazi obj file od modela crashed_car -> https://drive.google.com/drive/folders/1UcvQYNdka42iMjF1AMDlQ9oW6erNa_St
+
+# Oblast grupe A
+1. Cubemaps - implementirana dva skybox-a, dan i noć
+
+# Oblasti grupe B
+1. Normal mapping - implementirana tekstura izgužvanog papira na stolu
+2. Parallax mapping - implementirana tekstura šahte na podu
+
+# Link do snimka
+https://www.youtube.com/watch?v=y0-K9uX4PiE&t=10s

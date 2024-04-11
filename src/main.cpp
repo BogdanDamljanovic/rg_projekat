@@ -205,15 +205,15 @@ int main() {
 
     // build and compile shaders
     // -------------------------
-    Shader ourShader("resources/shaders/2.model_lighting.vs", "resources/shaders/2.model_lighting.fs");
+    Shader ourShader("resources/shaders/model_lighting.vs", "resources/shaders/model_lighting.fs");
     Shader skyboxShader("resources/shaders/skybox.vs", "resources/shaders/skybox.fs");
     Shader planeShader("resources/shaders/planeShader.vs", "resources/shaders/planeShader.fs");
     Shader blendingShader("resources/shaders/blending.vs", "resources/shaders/blending.fs");
     Shader parallaxShader("resources/shaders/parallax_mapping.vs", "resources/shaders/parallax_mapping.fs");
+    Shader normalShader("resources/shaders/normal_mapping.vs", "resources/shaders/normal_mapping.fs");
 
     // load models
     // -----------
-
     Model garage("resources/objects/garage/garage.obj");
     garage.SetShaderTextureNamePrefix("material.");
 
@@ -285,6 +285,7 @@ int main() {
     dirLight.diffuse = glm::vec3(1, 0.8, 0.1);
     dirLight.specular = glm::vec3(0.5f, 0.5f, 0.5f);
 
+    //cube
     float cubeVertices[] = {
             // back face
             -0.5f, -0.5f, -0.5f,  0.0f, 0.0f, // bottom-left
@@ -431,6 +432,14 @@ int main() {
     parallaxShader.setInt("diffuseMap", 0);
     parallaxShader.setInt("normalMap", 1);
     parallaxShader.setInt("depthMap", 2);
+
+    //paper
+    unsigned int diffuseMapPaper = loadTexture(FileSystem::getPath("resources/textures/paper.jpg").c_str(), true);
+    unsigned int normalMapPaper  = loadTexture(FileSystem::getPath("resources/textures/paper_normal_map.png").c_str(), true);
+
+    normalShader.use();
+    normalShader.setInt("diffuseMap", 0);
+    normalShader.setInt("normalMap", 1);
 
     //skybox vertices
     float skyboxVertices[] = {
@@ -732,6 +741,23 @@ int main() {
         parallaxShader.setMat4("model", quad);
         renderQuad();
 
+        //paper
+        normalShader.use();
+        normalShader.setMat4("projection", projection);
+        normalShader.setMat4("view", view);
+        normalShader.setVec3("viewPos", programState->camera.Position);
+        normalShader.setVec3("lightPos", glm::vec3(3.0f, 450.0f, 40.0f));
+        quad = glm::mat4(1.0f);
+        quad = glm::translate(quad, glm::vec3(-315.0f, 66.5f, -656.0f));
+        quad = glm::rotate(quad, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+        quad = glm::scale(quad, glm::vec3(5.0f, 5.0f, 5.0f));
+        normalShader.setMat4("model", quad);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, diffuseMapPaper);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, normalMapPaper);
+        renderQuad();
+
         //ourShader
         ourShader.use();
         ourShader.setBool("noc", noc);
@@ -877,7 +903,7 @@ int main() {
         ourShader.setFloat("pointLight12.linear", pointLight1.linear);
         ourShader.setFloat("pointLight12.quadratic", 0.007);
 
-        // diner sign light kos ulaza
+        // diner sign light kod ulaza
         ourShader.setVec3("pointLight13.position", glm::vec3(60, 100, -1193));
         ourShader.setVec3("pointLight13.ambient", pointLight1.ambient);
         ourShader.setVec3("pointLight13.diffuse", pointLight1.diffuse);
@@ -1173,7 +1199,7 @@ void DrawImGui(ProgramState *programState) {
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
-
+/*
     {
         ImGui::Begin("Camera info");
         const Camera& c = programState->camera;
@@ -1183,7 +1209,7 @@ void DrawImGui(ProgramState *programState) {
         ImGui::Checkbox("Camera mouse update", &programState->CameraMouseMovementUpdateEnabled);
         ImGui::End();
     }
-
+*/
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
